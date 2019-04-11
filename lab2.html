@@ -1,0 +1,198 @@
+<html> 
+<style>
+rect{
+stroke-width:2;
+stroke:rgb(0,0,0);
+ opacity:0.75
+}
+  rect:hover{
+    opacity:0.3;
+    transition: opacity .2s ease-out;
+  }
+  body{
+  	color: purple;
+  	background-color: rgb(229, 255, 196);
+  }
+</style>
+<script src='https://d3js.org/d3.v4.min.js'></script>
+
+  <body>
+
+    <h1>Server1</h1>
+    <h2>Play Tic Tac Toe! You go first!</h2>
+    <svg id = "arr" width = "600" height = "600">
+        <rect x="0" y="0" width = "200" height = "200"  style="fill:rgb(91, 255, 255);" onClick = "click(0,0,0)"  />
+        <rect x="200" y="0" width = "200" height = "200" style="fill:rgb(241, 255, 91);" onClick = "click(1,200,0)"  />
+
+        <rect x="400" y="0" width = "200" height = "200"  style="fill:rgb(91, 255, 255);" onClick = "click(2,400,0)" />
+        <rect x="0" y="200" width = "200" height = "200"  style="fill:rgb(241, 255, 91);"  onClick = "click(3,0,200)"/>
+        <rect x="200" y="200" width = "200" height = "200" style="fill:rgb(91, 255, 255);" onClick = "click(4,200,200)"/>
+        <rect x="400" y="200" width = "200" height = "200"  style="fill:rgb(241, 255, 91);" onClick = "click(5,400,200)"/>
+        <rect x="0" y="400" width = "200" height = "200"  style="fill:rgb(91, 255, 255);"  onClick = "click(6,0,400)"/>
+        <rect x="200" y="400" width = "200" height = "200"  style="fill:rgb(241, 255, 91);" onClick = "click(7,200,400)" />
+        <rect x="400" y="400" width = "200" height = "200"  style="fill:rgb(91, 255, 255);" onClick = "click(8,400,400)" />
+        <!--<text x="230" y="370" fill="red" style = "font: bold 200px sans-serif" >X</text>-->
+        <!-- <text x="30" y="170" fill="red" style = "font: bold 200px sans-serif">X</text> -->
+
+    </svg>
+  </body>
+  <script>
+    let arr = [0,0,0,0,0,0,0,0,0];
+    let computer = 1;
+    let user = -1;
+    let winner = 0;
+    function win(player){
+  if((arr[0]+arr[1]+arr[2])==3*player||(arr[3]+arr[4]+arr[5])==3*player||(arr[6]+arr[7]+arr[8])==3*player||(arr[0]+arr[3]+arr[6])==3*player||(arr[1]+arr[4]+arr[7])==3*player||(arr[2]+arr[5]+arr[8])==3*player||(arr[0]+arr[4]+arr[8])==3*player||(arr[2]+arr[4]+arr[6])==3*player){
+    return 1;
+};
+  return 0;
+}
+  function boardfull(){
+    for(let x = 0; x<9; x++){
+      if(arr[x]==0){
+      return 0;
+      }
+    }
+    return 1;
+
+}
+let d= [];
+	function winpts( turn ){
+	if(win(turn*-1)==1){
+				return 10*turn*-1;
+	}
+	if(boardfull()==1){
+				return 0;
+	}
+	let min = Number.MAX_SAFE_INTEGER;
+	let max = Number.MIN_SAFE_INTEGER;
+	let d_max_c = max;
+	let d_min_c = max;
+		for(let x = 0; x<9; x++){
+			
+			
+			if(arr[x]==0){
+				arr[x] = turn;
+			}else{
+				continue;
+			}
+			d.push( d[d.length-1] + 1);
+			let g = winpts(turn*-1);
+			if(max==g){
+				if(d[d.length-1]<d_max_c){
+					d_max_c = d[d.length-1];
+				}
+			}
+			if(min==g){
+				if(d[d.length-1]<d_min_c){
+					d_min_c = d[d.length-1];
+				}
+			}
+			if(min>g){
+				min = g;
+				d_min_c = d[d.length-1];
+			}
+			if(max<g){
+				max = g;
+				d_max_c = d[d.length-1];
+			}
+			arr[x] = 0;
+			d.pop();
+		}
+
+
+		
+	if(turn==user){
+		d[d.length-1] = d_min_c;
+		return min;
+	}
+	d[d.length-1] = d_max_c;
+	return max;
+
+}
+function winnerr(){
+	alert("You won! Refresh Page to play again");
+}
+function loser(){
+	alert("You Lost! Refresh Page to play again");
+}
+function tie(){
+	alert("It's a tie! Refresh Page to play again");
+}
+
+function computerdecision(){
+	let max_pos = 0;
+	
+	let max_pts = Number.MIN_SAFE_INTEGER;
+	let  depth = Number.MAX_SAFE_INTEGER;
+	for(let x = 0; x<9; x++){
+		if(arr[x]==0){
+			arr[x]= computer;
+		}else{
+			continue;
+		}
+		d = [1];
+		let p = winpts(user);
+
+		if(p==max_pts){
+			if(depth>d[0]){
+				depth = d[0];
+				max_pos = x;
+			}
+		}
+		if(p>max_pts){
+			max_pts = p;
+			max_pos = x;
+			depth = d[0];
+		}
+		arr[x]=0;
+
+	}
+	arr[max_pos] = computer;
+	// console.log(max_pos)
+	// console.log(arr)
+	return max_pos;
+
+}
+    
+	var obj = [{x:0,y:0},{x:200,y:0},{x:400,y:0},{x:0,y:200},{x:200,y:200},{x:400,y:200},{x:0,y:400},{x:200,y:400},{x:400,y:400}];
+    function click(x,y,z){
+      if(arr[x]==computer||arr[x]==user||winner ==1){
+        return;
+      }
+      arr[x] = user;
+      d3.select("svg").append("text").attr("x",""+(y+30)).attr("y",""+(z+170)).attr("fill","red").attr("style","font: bold 200px sans-serif").text("X");
+     
+      if(win(user)){
+        winner = 1;
+        window.setTimeout(winnerr,500);
+        return;
+      }
+      if(boardfull()){
+      	winner = 1;
+      	window.setTimeout(tie,500);
+      	return;
+      }
+      let pos = computerdecision()
+
+
+      d3.select("svg").append("text").attr("x",""+(obj[pos].x+30)).attr("y",""+(obj[pos].y+170)).attr("fill","red").attr("style","font: bold 200px sans-serif").text("O");
+      window.setTimeout(function (){},1000);
+ 	if(win(computer)){
+      	winner = 1;
+        window.setTimeout(loser,500);
+        return;
+      }
+ 	if(boardfull()){
+      	winner = 1;
+      	window.setTimeout(tie,500);
+      	return;
+      }
+      
+
+
+    };
+
+
+  </script>
+</html>
